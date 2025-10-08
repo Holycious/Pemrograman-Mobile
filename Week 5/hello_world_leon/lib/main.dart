@@ -1,122 +1,227 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+// Import the widgets you created in separate files per Praktikum instructions.
+import 'basic_widgets/loading_cupertino.dart';
+import 'basic_widgets/fab_widget.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
+// Root app with a simple menu to test all widgets from Praktikum 5.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'Praktikum 5 - Demo Widgets',
+      theme: ThemeData(primarySwatch: Colors.red),
+      home: const HomeMenu(),
+      routes: {
+        '/cupertino': (_) => const LoadingCupertino(),
+        '/fab': (_) => const FabWidget(),
+        '/scaffold-counter': (_) =>
+            const CounterScaffoldPage(title: 'My Increment App'),
+        '/dialog': (_) => const AlertDialogPage(),
+        '/textfield': (_) => const TextFieldPage(),
+        '/datepicker': (_) => const DatePickerPage(title: 'Contoh Date Picker'),
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class HomeMenu extends StatelessWidget {
+  const HomeMenu({super.key});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+  @override
+  Widget build(BuildContext context) {
+    final items = <_MenuItem>[
+      _MenuItem('Cupertino Button & Loading', '/cupertino', Icons.apple),
+      _MenuItem('Floating Action Button (FAB)', '/fab', Icons.touch_app),
+      _MenuItem('Scaffold + Counter', '/scaffold-counter', Icons.dashboard),
+      _MenuItem('Dialog (AlertDialog)', '/dialog', Icons.notifications),
+      _MenuItem('Input: TextField', '/textfield', Icons.text_fields),
+      _MenuItem('Date & Time Pickers', '/datepicker', Icons.date_range),
+    ];
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+    return Scaffold(
+      appBar: AppBar(title: const Text('Praktikum 5 - Demo Widgets')),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(12),
+        itemBuilder: (_, i) {
+          final it = items[i];
+          return ListTile(
+            leading: Icon(it.icon, color: Colors.red),
+            title: Text(it.title),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pushNamed(context, it.route),
+          );
+        },
+        separatorBuilder: (_, __) => const Divider(height: 1),
+        itemCount: items.length,
+      ),
+    );
+  }
+}
 
+class _MenuItem {
+  final String title;
+  final String route;
+  final IconData icon;
+  _MenuItem(this.title, this.route, this.icon);
+}
+
+// =======================
+// Langkah 3: Scaffold Widget (Counter)
+// =======================
+class CounterScaffoldPage extends StatefulWidget {
+  const CounterScaffoldPage({super.key, required this.title});
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<CounterScaffoldPage> createState() => _CounterScaffoldPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _CounterScaffoldPageState extends State<CounterScaffoldPage> {
   int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  void _incrementCounter() => setState(() => _counter++);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text('You have pushed the button this many times:'),
+            Text('$_counter', style: Theme.of(context).textTheme.displayMedium),
+          ],
+        ),
+      ),
+      bottomNavigationBar: const BottomAppBar(child: SizedBox(height: 50.0)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment Counter',
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+}
+
+// =======================
+// Langkah 4: Dialog Widget (AlertDialog)
+// =======================
+class AlertDialogPage extends StatelessWidget {
+  const AlertDialogPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Dialog - AlertDialog')),
+      body: Center(
+        child: ElevatedButton(
+          child: const Text('Show alert'),
+          onPressed: () => _showAlertDialog(context),
+        ),
+      ),
+    );
+  }
+
+  void _showAlertDialog(BuildContext context) {
+    final okButton = TextButton(
+      child: const Text('OK'),
+      onPressed: () => Navigator.pop(context),
+    );
+
+    final alert = AlertDialog(
+      title: const Text('My title'),
+      content: const Text('This is my message.'),
+      actions: [okButton],
+    );
+
+    showDialog(context: context, builder: (ctx) => alert);
+  }
+}
+
+// =======================
+// Langkah 5: Input & Selection - TextField
+// =======================
+class TextFieldPage extends StatelessWidget {
+  const TextFieldPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Contoh TextField')),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: TextField(
+          obscureText: false,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Nama',
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =======================
+// Langkah 6: Date & Time Pickers - DatePicker
+// =======================
+class DatePickerPage extends StatefulWidget {
+  const DatePickerPage({super.key, required this.title});
+  final String title;
+
+  @override
+  State<DatePickerPage> createState() => _DatePickerPageState();
+}
+
+class _DatePickerPageState extends State<DatePickerPage> {
+  DateTime selectedDate = DateTime.now();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() => selectedDate = picked);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final formatted = "${selectedDate.toLocal()}".split(' ')[0];
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
+      appBar: AppBar(title: Text(widget.title)),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            Text(formatted),
+            const SizedBox(height: 20.0),
+            ElevatedButton(
+              onPressed: () async {
+                await _selectDate(context);
+                // ignore: avoid_print
+                print(
+                  selectedDate.day + selectedDate.month + selectedDate.year,
+                );
+              },
+              child: const Text('Pilih Tanggal'),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
