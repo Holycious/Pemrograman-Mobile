@@ -85,3 +85,7 @@ Widget textSection = Container(
 ![Screenshot](images/t1s2.png)
 
 ## Kumpulkan link commit repository GitHub Anda kepada dosen yang telah disepakati!
+
+# Praktikum 5: Membangun Navigasi di Flutter
+
+## Langkah 1: Siapkan project baru
