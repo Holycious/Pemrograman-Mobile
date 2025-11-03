@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    const primary = Color.fromARGB(255, 100, 92, 255); // Ungu seperti contoh
+    const primary = Color.fromARGB(255, 100, 92, 255);
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
