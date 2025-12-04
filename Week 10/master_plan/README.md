@@ -106,3 +106,19 @@ Immutable pattern: Setiap perubahan membuat instance Plan baru, bukan memodifika
 Praktikum 2 mengubah state management dari pendekatan lokal (setState()) menjadi shared state menggunakan InheritedNotifier dan ValueNotifier. Variabel plan yang sebelumnya ada di _PlanScreenState dihapus dan diganti dengan akses state melalui PlanProvider.of(context). Di main.dart, PlanScreen dibungkus dengan PlanProvider yang menyediakan ValueNotifier<Plan> ke seluruh widget tree. UI diubah dengan menambahkan ValueListenableBuilder untuk mendengarkan perubahan state dan auto-rebuild, serta menampilkan progress indicator ("X out of Y tasks") di bawah list menggunakan method completenessMessage. Layout body sekarang menggunakan Column dengan Expanded untuk list dan SafeArea untuk pesan progress. Perubahan ini membuat state management lebih terstruktur, mudah di-share antar widget, dan lebih efisien karena hanya widget yang menggunakan data yang akan rebuild.
 
 ## 5. Kumpulkan laporan praktikum Anda berupa link commit atau repository GitHub ke dosen yang telah disepakati !
+
+# Praktikum 3: Membuat State di Multiple Screens
+
+## 1. Selesaikan langkah-langkah praktikum tersebut, lalu dokumentasikan berupa GIF hasil akhir praktikum beserta penjelasannya di file README.md! Jika Anda menemukan ada yang error atau tidak berjalan dengan baik, silakan diperbaiki sesuai dengan tujuan aplikasi tersebut dibuat.
+ 
+## 2. Berdasarkan Praktikum 3 yang telah Anda lakukan, jelaskan maksud dari gambar diagram berikut ini!
+![alt text](assets/9ce81bcd2817adc8.png)
+ 
+### Penjelasan:
+#### Dari single-screen menjadi multi-screen navigation, memisahkan tampilan daftar plans dan detail tasks per plan. Ini membuat aplikasi lebih terstruktur dan scalable untuk mengelola multiple plans.
+
+## 3. Lakukan capture hasil dari Langkah 14 berupa GIF, kemudian jelaskan apa yang telah Anda buat!
+
+![alt text](assets/Praktikum3.gif)
+
+## 4. Kumpulkan laporan praktikum Anda berupa link commit atau repository GitHub ke dosen yang telah disepakati !
