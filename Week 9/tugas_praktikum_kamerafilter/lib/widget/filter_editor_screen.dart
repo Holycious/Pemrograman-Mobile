@@ -14,6 +14,8 @@ class _FilterEditorScreenState extends State<FilterEditorScreen> {
   late final List<FilterConfig> _filters;
   late final PageController _pageController;
   int _selected = 0;
+  // Hue slider (0..360) — dipakai hanya untuk filter yang memiliki tintColor
+  double _hue = 0.0;
 
   // Texture stabil (eksternal)
   static const _txAsfalt =
@@ -116,6 +118,9 @@ class _FilterEditorScreenState extends State<FilterEditorScreen> {
     ];
 
     _pageController = PageController(initialPage: _selected);
+    // Inisialisasi hue dari filter terpilih (jika ada)
+    final initTint = _filters[_selected].tintColor;
+    _hue = initTint != null ? HSVColor.fromColor(initTint).hue : 0.0;
   }
 
   @override
@@ -156,7 +161,13 @@ class _FilterEditorScreenState extends State<FilterEditorScreen> {
                     PageView.builder(
                       controller: _pageController,
                       physics: const BouncingScrollPhysics(),
-                      onPageChanged: (i) => setState(() => _selected = i),
+                      onPageChanged: (i) => setState(() {
+                        _selected = i;
+                        final tint = _filters[i].tintColor;
+                        _hue = tint != null
+                            ? HSVColor.fromColor(tint).hue
+                            : 0.0;
+                      }),
                       itemCount: _filters.length,
                       itemBuilder: (context, i) {
                         final f = _filters[i];
@@ -196,12 +207,58 @@ class _FilterEditorScreenState extends State<FilterEditorScreen> {
             ),
           ),
 
+          // Slider warna (hanya muncul bila filter terpilih memiliki tint)
+          if (_filters[_selected].hasTint)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Text('Warna'),
+                      const SizedBox(width: 12),
+                      // preview warna kecil
+                      Container(
+                        width: 28,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: HSVColor.fromAHSV(
+                            1,
+                            _hue,
+                            HSVColor.fromColor(
+                              _filters[_selected].tintColor!,
+                            ).saturation,
+                            HSVColor.fromColor(
+                              _filters[_selected].tintColor!,
+                            ).value,
+                          ).toColor(),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.black12),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    value: _hue,
+                    min: 0,
+                    max: 360,
+                    divisions: 360,
+                    label: '${_hue.round()}°',
+                    onChanged: (v) => setState(() => _hue = v),
+                  ),
+                ],
+              ),
+            ),
+
           // CAROUSEL THUMBNAILS — tap untuk lompat ke filter tertentu
           FilterSelector(
             filters: _filters,
             selectedIndex: _selected,
             onSelected: (i) {
               setState(() => _selected = i);
+              // sinkronkan hue saat berpindah filter
+              final tint = _filters[i].tintColor;
+              _hue = tint != null ? HSVColor.fromColor(tint).hue : 0.0;
               _pageController.animateToPage(
                 i,
                 duration: const Duration(milliseconds: 260),
@@ -217,6 +274,15 @@ class _FilterEditorScreenState extends State<FilterEditorScreen> {
 
   // Widget preview satu filter
   Widget _buildPreviewForFilter(FilterConfig f) {
+    // Jika filter memiliki tint, hitung warna efektf dari hue slider
+    final Color? effectiveTint = f.tintColor != null
+        ? HSVColor.fromAHSV(
+            1,
+            _hue,
+            HSVColor.fromColor(f.tintColor!).saturation,
+            HSVColor.fromColor(f.tintColor!).value,
+          ).toColor()
+        : null;
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -246,12 +312,12 @@ class _FilterEditorScreenState extends State<FilterEditorScreen> {
             ),
           ),
 
-        // Tint overlay (blend) — opsional
-        if (f.tintColor != null)
+        // Tint overlay (blend) — opsional. Gunakan warna hasil slider jika tersedia.
+        if (effectiveTint != null)
           IgnorePointer(
             ignoring: true,
             child: ColorFiltered(
-              colorFilter: ColorFilter.mode(f.tintColor!, f.blendMode),
+              colorFilter: ColorFilter.mode(effectiveTint, f.blendMode),
               child: Container(color: Colors.transparent),
             ),
           ),
